@@ -1,0 +1,18 @@
+type: Handler
+api_version: core/v2
+metadata:
+  name: slack
+spec:
+  command: slack.py
+  env_vars:
+    - SLACK_WEBHOOK_URL=https://hooks.slack.com/services/TXXXXXXXXX6/BXXXXXXXE/PXXXXXXXXXXXXXXXXXXXXXZH
+    - SENSU_BASE_URL=https://sensu.foo.com
+  filters:
+    - is_incident
+    - not_silenced
+    - not_flapping
+    - fatigue_check
+  runtime_assets:
+    - joshbeard/slack-alert
+    - jspaleta/sensu-python-runtime
+  type: pipe

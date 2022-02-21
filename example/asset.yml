@@ -1,0 +1,9 @@
+---
+type: Asset
+api_version: core/v2
+metadata:
+  name: sensu-slack-alert
+spec:
+  builds:
+  - sha512: {{ asset_checksum }}
+    url: {{ asset_url }}/sensu-slack-alert.tar.gz
