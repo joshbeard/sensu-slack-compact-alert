@@ -1,0 +1,27 @@
+name: Package Sensu Asset
+
+on:
+  push:
+    branches:
+      - 'workflow'
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+
+      - name: Install requirements
+        run: |
+          cd src
+          python -m pip install --upgrade pip wheel
+          python -m pip install -r requirements.txt --target lib
+          ls -l
+      - id: cache-pipenv
+        uses: actions/cache@v1
