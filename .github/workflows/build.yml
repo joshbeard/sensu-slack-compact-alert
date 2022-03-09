@@ -1,0 +1,52 @@
+name: Package Sensu Asset
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+
+      - name: Install requirements
+        run: |
+          cd src
+          python -m pip install --upgrade pip wheel
+          python -m pip install -r requirements.txt --target lib
+          ls -l
+      - name: Create archive
+        run: |
+          cd src
+          tar -cvzf ../sensu-slack-alert.tar.gz .
+      - name: shasum
+        run: shasum -a 512 sensu-slack-alert.tar.gz
+
+      - name: release
+        uses: actions/create-release@v1
+        id: create_release
+        with:
+          draft: false
+          prerelease: false
+          release_name: ${{ github.ref }}
+          tag_name: ${{ github.ref }}
+          body_path: CHANGELOG.md
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: upload artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./sensu-slack-alert.tar.gz
+          asset_name: sensu-slack-compact-alert-${{ github.ref }}.linux-amd64.tar.gz
+          asset_content_type: application/gzip
