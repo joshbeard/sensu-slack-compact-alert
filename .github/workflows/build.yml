@@ -28,7 +28,7 @@ jobs:
           cd src
           tar -cvzf ../sensu-slack-alert.tar.gz .
       - name: shasum
-        run: shasum -a 512 sensu-slack-alert.tar.gz
+        run: shasum -a 512 sensu-slack-alert.tar.gz > sensu-slack-compact-alert-${{ github.ref_name }}-sha512-checksums.txt
 
       - name: release
         uses: actions/create-release@v1
@@ -50,3 +50,11 @@ jobs:
           asset_path: ./sensu-slack-alert.tar.gz
           asset_name: sensu-slack-compact-alert-${{ github.ref_name }}-linux-amd64.tar.gz
           asset_content_type: application/gzip
+      - name: upload checksum artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: sensu-slack-compact-alert-${{ github.ref_name }}-sha512-checksums.txt
+          asset_name: sensu-slack-compact-alert-${{ github.ref_name }}-sha512-checksums.txt
