@@ -4,10 +4,9 @@ This is a [Sensu handler](https://docs.sensu.io/sensu-go/latest/observability-pi
 
 It's written in Python and uses the [jspaleta/sensu-python-runtime](https://bonsai.sensu.io/assets/jspaleta/sensu-python-runtime) runtime in Sensu Go.
 
-While Sensu [provides](https://bonsai.sensu.io/assets/sensu/sensu-slack-handler) a Slack handler,
-its messages take up too much space. This handler intends to be more condensed and provide more useful information.
+Sensu [provides](https://bonsai.sensu.io/assets/sensu/sensu-slack-handler) a Slack handler, but its messages take up too much space. This handler intends to be more condensed and fit messages on a single line.
 
-Emojis are used to indicate the status and the output is typically a single line:
+Emojis are used to indicate the status:
 
 ![Screenshot showing Slack output](https://raw.githubusercontent.com/joshbeard/sensu-slack-compact-alert/master/docs/screenshot1.png)
 
