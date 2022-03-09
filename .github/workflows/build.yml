@@ -2,8 +2,8 @@ name: Package Sensu Asset
 
 on:
   push:
-    branches:
-      - 'workflow'
+    tags:
+      - '*'
 
 jobs:
   build-and-publish:
@@ -29,3 +29,24 @@ jobs:
           tar -cvzf ../sensu-slack-alert.tar.gz .
       - name: shasum
         run: shasum -a 512 sensu-slack-alert.tar.gz
+
+      - name: release
+        uses: actions/create-release@v1
+        id: create_release
+        with:
+          draft: false
+          prerelease: false
+          release_name: ${{ github.ref }}
+          tag_name: ${{ github.ref }}
+          body_path: CHANGELOG.md
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: upload artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./sensu-slack-alert.tar.gz
+          asset_name: sensu-slack-compact-alert-${{ github.ref }}.linux-amd64.tar.gz
+          asset_content_type: application/gzip
