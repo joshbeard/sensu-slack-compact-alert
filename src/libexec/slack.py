@@ -1,4 +1,30 @@
 #!/usr/bin/env python
+"""
+A handler for Sensu Go for sending alerts to Slack in a more compact way than
+the official one, as well as other customizations.
+
+Configuration:
+  Environment variables (e.g. in a check config):
+    SLACK_WEBHOOK_URL   A legacy Slack webhook URL
+    SLACK_USERNAME      The username to send the message as
+    SLACK_CHANNEL       The Slack channel to send to or a fallback channel. Labels and annotations take precedence.
+    ICON_URL            A URL to an icon image to use for the Slack user
+    SENSU_BASE_URL      The base URL to the Sensu dashboard to link to. E.g. https://sensu.foo.org/
+
+  Sensu Entity labels or annotations:
+    slack_link_command_url: Toggles linking to a URL found in the check output.
+
+  Slack channels can be configured using a label or annotation.
+  In order of precedence:
+    slack_channel annotation on entity
+    slack-channel annotation on entity
+    slack_channel label on entity
+    slack-channel label on entity
+
+Authors:
+  * Josh Beard - https://joshbeard.me
+
+"""
 import logging
 import os
 import re
@@ -12,19 +38,22 @@ now = datetime.now()
 config = {
     "webhook_url": os.environ.get('SLACK_WEBHOOK_URL'),
     "username": os.environ.get('SLACK_USERNAME', 'Sensu'),
-    "sensu_url": os.environ.get('SENSU_BASE_URL')
+    "sensu_url": os.environ.get('SENSU_BASE_URL'),
+    "icon_url": os.environ.get('ICON_URL', 'https://docs.sensu.io/images/sensu-logo-icon-dark@2x.png')
 }
 
 """
 List of emojis to map to an event status, using the Sensu/Nagios
 exit code (0=OK, 1=Warning, 2=Critical, 3=Unknown)
 """
-emoji = [
-    ':large_green_circle:',
-    ':large_yellow_circle:',
-    ':red_circle:',
-    ':large_purple_circle:'
-]
+def emoji(status):
+    emojis = [
+        ':large_green_circle:',
+        ':large_yellow_circle:',
+        ':red_circle:',
+        ':large_purple_circle:'
+    ]
+    return emojis[status]
 
 def pretty_date(time=False, since=now, relative=True):
     """
@@ -32,6 +61,11 @@ def pretty_date(time=False, since=now, relative=True):
     pretty string like 'an hour ago', 'Yesterday', '3 months ago',
     'just now', etc
     Adapted from https://stackoverflow.com/questions/1551382/user-friendly-time-format-in-python/1551394#1551394
+
+    :param time: the timestamp to parse
+    :param since: The current time as a datetime object
+    :param relative: Boolean toggling to return the time relative. E.g. "x ago"
+    :return: returns a string indicating how long ago a specific time was
     """
     if type(time) is int:
         diff = since - datetime.fromtimestamp(time)
@@ -137,6 +171,9 @@ def parse_history(history):
     Parse event history to determine the delta between the previous (bad) status
     and when it first began.
     This returns a list of the previous failed checks since the last OK
+
+    :param history: The Sensu check's history from the event data
+    :return: returns a list of the most recent failed checks since the last passing
     """
     history.reverse()
     bad_checks = []
@@ -150,6 +187,57 @@ def parse_history(history):
             break
     return(bad_checks)
 
+def slack_channel(metadata):
+    """
+    Find a Slack channel to use in labels, annotations, or an environment
+    variable.
+
+    :param metadata: The Sensu event metadata containing labels or annotations
+    :return: returns a string with the slack channel to alert to
+    """
+    if 'annotations' in metadata:
+        annotations = metadata['annotations']
+        if 'slack_channel' in annotations:
+            return annotations['slack_channel']
+        elif 'slack-channel' in annotations:
+            return annotations['slack-channel']
+
+    if 'labels' in metadata:
+        labels = metadata['labels']
+        if 'slack_channel' in labels:
+            return labels['slack_channel']
+        elif 'slack-channel' in labels:
+            return labels['slack-channel']
+        else:
+            return os.environ.get('SLACK_CHANNEL', 'alerts')
+
+def alert_duration(history, status):
+    """
+    Parse the history to display how long a check has been in its status or previous status
+
+    TODO: This is buggy and pretty limited in usefulness, since the Sensu alert
+    history is limited.
+
+    :param history: The Sensu check's history from the event data
+    :param status: The Sensu check status (as int) from event metadata
+    :return: returns a string with how long a check has alerted
+    """
+    for i, hist in enumerate(history):
+        if i == 0:
+            if int(hist['status']) is 0:
+                continue
+        bad_history = parse_history(history)
+        if len(bad_history) > 1:
+            bad_first = datetime.fromtimestamp(bad_history[-1]['executed'])
+            bad_last = datetime.fromtimestamp(bad_history[0]['executed'])
+            duration = str(pretty_date(bad_first, bad_last, False))
+            #if status is 0:
+            #    return "Alerted for " + duration
+            #else:
+            #    return "Alerting for " + duration
+    # Disabled for now
+    return ""
+
 def main():
     """
     Load the Sensu event data (stdin)
@@ -159,96 +247,57 @@ def main():
         data += "".join(line.strip())
     obj = json.loads(data)
 
-    """
-    Parse the history to display how long a check has been in its status or previous status
-    """
-    time_text = ""
-    if 'history' in obj['check']:
-        for i, hist in enumerate(obj['check']['history']):
-            if i == 0:
-                if int(hist['status']) is 0:
-                    continue
-            bad_history = parse_history(obj['check']['history'])
-            if len(bad_history) > 1:
-                bad_first = datetime.fromtimestamp(bad_history[-1]['executed'])
-                bad_last = datetime.fromtimestamp(bad_history[0]['executed'])
-                duration = str(pretty_date(bad_first, bad_last, False))
-                if obj['check']['status'] is 0:
-                    print("was alerting for " + duration)
-                    time_text = "Alerted for " + duration
-                else:
-                    time_text = "Alerting for " + duration
+    channel     = slack_channel(obj['entity']['metadata'])
+    namespace   = obj['entity']['metadata']['namespace']
+    entity_name = obj['entity']['metadata']['name']
+    check_name  = obj['check']['metadata']['name']
 
     output = obj['check']['output']
     output.replace('\n', ' ').replace('\r', '')
+
+    message = emoji(obj['check']['status'])
 
     """
     Generate markdown for the entity name in the Slack message
     This links it to the Sensu dashboard
     """
-    entity_text = "<" + config['sensu_url'] \
-        + "/c/~/n/" + obj['entity']['metadata']['namespace'] \
-        + "/entities/" + obj['entity']['metadata']['name'] \
-        + "/events|" + obj['entity']['metadata']['name']  + ">"
+    message += " " + f"<{config['sensu_url']}/c/~/n/{namespace}/entities/{entity_name}/events|{entity_name}>"
 
     """
     Generate markdown for the check name in the Slack message
     This links it to the Sensu dashboard
     """
-    check_text = "<" \
-        + config['sensu_url'] \
-        + "/c/~/n/" + obj['entity']['metadata']['namespace'] \
-        + "/events/" + obj['entity']['metadata']['name'] \
-        + "/" + obj['check']['metadata']['name'] \
-        + "|" + obj['check']['metadata']['name'] + ">"
+    message += " - " + f"<{config['sensu_url']}/c/~/n/{namespace}/events/{entity_name}/{check_name}|{check_name}>"
 
     """
     If a URL is in the check command, add a link to it in the Slack message.
     This is disabled by default and can be enabled per-check by setting a
-    label or annotation called 'slack_show_command_url' to 'True' (bool)
+    label or annotation called 'slack_link_command_url' to 'True' (bool)
     """
-    check_command_urls = False
+    s = False
     if 'labels' in obj['check']['metadata']:
-        if 'slack_show_command_url' in obj['check']['metadata']['labels']:
-            if obj['check']['metadata']['labels']['slack_show_command_url'].lower() == "true":
-                check_command_urls = True
+        if 'slack_link_command_url' in obj['check']['metadata']['labels']:
+            if obj['check']['metadata']['labels']['slack_link_command_url'].lower() == "true":
+                s = True
     if 'annotations' in obj['check']['metadata']:
-        if 'slack_show_command_url' in obj['check']['metadata']['annotations']:
-            if obj['check']['metadata']['annotations']['slack_show_command_url'].lower() == "true":
-                check_command_urls = True
+        if 'slack_link_command_url' in obj['check']['metadata']['annotations']:
+            if obj['check']['metadata']['annotations']['slack_link_command_url'].lower() == "true":
+                s = True
 
-    if check_command_urls:
+    if s:
         if 'https://' in obj['check']['command'] or 'http://' in obj['check']['command']:
+            # Match the first URL in the check command
             check_url = re.findall(r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+", obj['check']['command'], re.I)[0]
             # Creates a string like <https://foo/bar|(visit site)>
-            check_text += " <" + check_url + "|" + "(view site)>"
+            message += " <" + check_url + "|" + "(view site)>"
 
-    """
-    Produce the Slack message
-    """
-    message = emoji[obj['check']['status']] + " " + entity_text + " - " + check_text + ": " + output.strip() + "; " + time_text
+    message += ": " + output.strip()
+
+    # Disabled for now
+    #if 'history' in obj['check']:
+    #    message += "; " + alert_duration(obj['check']['history'], obj['check']['status'])
 
     logging.debug("raw event data: %s " % str(obj))
-
-    """
-    Find a Slack channel to use in labels, annotations, or an environment
-    variable.
-    """
-    if 'labels' in obj['entity']['metadata']:
-        labels = obj['entity']['metadata']['labels']
-        if 'slack_channel' in labels:
-            channel = labels['slack_channel']
-        elif 'slack-channel' in labels:
-            channel = labels['slack-channel']
-        else:
-            channel = os.environ.get('SLACK_CHANNEL', 'alerts')
-
-    if 'annotations' in obj['entity']['metadata']:
-        annotations = obj['entity']['metadata']['annotations']
-        if 'slack_channel' in annotations:
-            channel = annotations['slack_channel']
-        elif 'slack-channel' in annotations:
-            channel = annotations['slack-channel']
 
     """
     Post to Slack
@@ -256,7 +305,7 @@ def main():
     slack = Slack(url=config['webhook_url'])
     slack.post(
         username=config['username'],
-        icon_url="https://docs.sensu.io/images/sensu-logo-icon-dark@2x.png",
+        icon_url=config['icon_url'],
         channel=channel,
         text=message,
     )
