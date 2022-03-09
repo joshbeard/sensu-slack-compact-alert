@@ -13,6 +13,7 @@ Configuration:
 
   Sensu Entity labels or annotations:
     slack_link_command_url: Toggles linking to a URL found in the check output.
+    slack_link_command_text: The link title when using slack_link_command_url.
 
   Slack channels can be configured using a label or annotation.
   In order of precedence:
@@ -275,21 +276,26 @@ def main():
     label or annotation called 'slack_link_command_url' to 'True' (bool)
     """
     s = False
+    link_text = "(view site)"
     if 'labels' in obj['check']['metadata']:
         if 'slack_link_command_url' in obj['check']['metadata']['labels']:
             if obj['check']['metadata']['labels']['slack_link_command_url'].lower() == "true":
                 s = True
+                if 'slack_link_command_text' in obj['check']['metadata']['labels']:
+                    link_text = obj['check']['metadata']['labels']['slack_link_command_text']
     if 'annotations' in obj['check']['metadata']:
         if 'slack_link_command_url' in obj['check']['metadata']['annotations']:
             if obj['check']['metadata']['annotations']['slack_link_command_url'].lower() == "true":
                 s = True
+                if 'slack_link_command_text' in obj['check']['metadata']['annotations']:
+                    link_text = obj['check']['metadata']['annotations']['slack_link_command_text']
 
     if s:
         if 'https://' in obj['check']['command'] or 'http://' in obj['check']['command']:
             # Match the first URL in the check command
             check_url = re.findall(r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+", obj['check']['command'], re.I)[0]
             # Creates a string like <https://foo/bar|(visit site)>
-            message += " <" + check_url + "|" + "(view site)>"
+            message += " <" + check_url + "|" + link_text + ">"
 
     message += ": " + output.strip()
 

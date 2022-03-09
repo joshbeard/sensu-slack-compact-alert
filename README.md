@@ -60,6 +60,8 @@ Environment variables can be set for certain configurations, including in a chec
 ### Labels and Annotations
 
 * `slack_link_command_url`: Toggles linking to a URL found in the check command.
+* `slack_link_command_text`: The link title when using `slack_link_command_url`. By default,
+  this is "(view site)"
 
 Slack channels can be configured using a label or annotation.  In order of precedence:
 
