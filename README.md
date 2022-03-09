@@ -2,8 +2,7 @@
 
 This is a [Sensu handler](https://docs.sensu.io/sensu-go/latest/observability-pipeline/observe-process/handlers/) for sending messages to Slack.
 
-It's written in Python and uses the
-[jspaleta/sensu-python-runtime](https://bonsai.sensu.io/assets/jspaleta/sensu-python-runtime) runtime in Sensu Go.
+It's written in Python and uses the [jspaleta/sensu-python-runtime](https://bonsai.sensu.io/assets/jspaleta/sensu-python-runtime) runtime in Sensu Go.
 
 While Sensu [provides](https://bonsai.sensu.io/assets/sensu/sensu-slack-handler) a Slack handler,
 its messages take up too much space. This handler intends to be more condensed and provide more useful information.
@@ -19,9 +18,33 @@ Slack message:
 
 ## Usage
 
-Provide a Sensu handler configuration:
+Provide a Sensu handler configuration, listing `joshbeard/sensu-slack-compact-alert` and [`jspaleta/sensu-python-runtime`](https://bonsai.sensu.io/assets/jspaleta/sensu-python-runtime) as runtime assets:
 
-See the [example handler config](example/handler-slack.yml).
+```yaml
+type: Handler
+api_version: core/v2
+metadata:
+  name: slack
+spec:
+  runtime_assets:
+    - joshbeard/sensu-slack-compact-alert
+    - jspaleta/sensu-python-runtime
+  command: slack.py
+  env_vars:
+    - SLACK_WEBHOOK_URL=https://hooks.slack.com/services/TXXXXXXXXX6/BXXXXXXXE/PXXXXXXXXXXXXXXXXXXXXXZH
+    - SENSU_BASE_URL=https://sensu.foo.com
+  filters:
+    - is_incident
+    - not_silenced
+    - not_flapping
+    - fatigue_check
+  runtime_assets:
+    - joshbeard/slack-alert
+    - jspaleta/sensu-python-runtime
+  type: pipe
+```
+
+See the [example handler config](https://github.com/joshbeard/sensu-slack-compact-alert/tree/master/example/handler-slack.yml).
 
 This uses the deprecated Slack incoming webhooks because it makes it easy to
 send notices to any (private or open) channel specified without having to run a
@@ -49,7 +72,7 @@ Slack channels can be configured using a label or annotation.  In order of prece
 * `slack_channel`: label on entity
 * `slack-channel`: label on entity
 
-## Build and Deploy
+## Building
 
 The [`src/`](src) directory structure is setup for Sensu to function properly. This is done according to the [sensu-python-runtime example](https://github.com/jspaleta/sensu-python-runtime).
 
@@ -62,17 +85,13 @@ tar -cvzf ../sensu-slack-alert.tar.gz .
 shasum -a 512 sensu-slack-alert.tar.gz
 ```
 
-Finally, a [_handler_ configuration](example/handler-slack.yml) is created to _use_ the handler.
-
 NOTE: This uses the legacy [Slack webhooks](https://api.slack.com/legacy/custom-integrations)
 because it's much simpler and possible to send messages to any channel, including private ones.
 
 ## Resources
 
-[Token substitution](https://docs.sensu.io/sensu-go/latest/observability-pipeline/observe-schedule/checks/#check-token-substitution)
-is not available in handler configurations due to security concerns (e.g. having a generic web check with the url as
-a variable set by an annotation or label), which is why this
-handler parses those annotations and labels directly.
+[Token substitution](https://docs.sensu.io/sensu-go/latest/observability-pipeline/observe-schedule/checks/#check-token-substitution) is not available in handler configurations due to security concerns (e.g. having a generic web check with the url as
+a variable set by an annotation or label), which is why this handler parses those annotations and labels directly.
 
 See <https://github.com/sensu/sensu-go/issues/2528> for more information.
 

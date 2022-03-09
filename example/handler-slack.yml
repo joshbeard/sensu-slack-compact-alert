@@ -13,6 +13,6 @@ spec:
     - not_flapping
     - fatigue_check
   runtime_assets:
-    - joshbeard/slack-alert
+    - joshbeard/sensu-slack-compact-alert
     - jspaleta/sensu-python-runtime
   type: pipe

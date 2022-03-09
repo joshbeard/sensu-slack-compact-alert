@@ -2,7 +2,7 @@
 type: Asset
 api_version: core/v2
 metadata:
-  name: sensu-slack-alert
+  name: joshbeard/sensu-slack-compact-alert
 spec:
   builds:
   - sha512: {{ asset_checksum }}
