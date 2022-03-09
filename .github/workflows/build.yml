@@ -28,7 +28,7 @@ jobs:
           cd src
           tar -cvzf ../sensu-slack-compact-alert-${{ github.ref_name }}-linux-amd64.tar.gz .
       - name: shasum
-        run: shasum -a 512 sensu-slack-alert.tar.gz > sensu-slack-compact-alert-${{ github.ref_name }}-sha512-checksums.txt
+        run: shasum -a 512 sensu-slack-compact-alert-${{ github.ref_name }}-linux-amd64.tar.gz > sensu-slack-compact-alert-${{ github.ref_name }}-sha512-checksums.txt
 
       - name: release
         uses: actions/create-release@v1
