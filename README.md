@@ -10,12 +10,12 @@ its messages take up too much space. This handler intends to be more condensed a
 
 Emojis are used to indicate the status and the output is typically a single line:
 
-![Screenshot showing Slack output](docs/screenshot1.png)
+![Screenshot showing Slack output](https://raw.githubusercontent.com/joshbeard/sensu-slack-compact-alert/master/docs/screenshot1.png)
 
 Optionally, checks that have a URL in its command can provide a link in the
 Slack message:
 
-![Screenshot showing link to url in check command](docs/screenshot2.png)
+![Screenshot showing link to url in check command](https://raw.githubusercontent.com/joshbeard/sensu-slack-compact-alert/master/docs/screenshot2.png)
 
 ## Usage
 
