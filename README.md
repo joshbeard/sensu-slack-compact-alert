@@ -37,9 +37,6 @@ spec:
     - not_silenced
     - not_flapping
     - fatigue_check
-  runtime_assets:
-    - joshbeard/slack-alert
-    - jspaleta/sensu-python-runtime
   type: pipe
 ```
 
@@ -62,7 +59,7 @@ Environment variables can be set for certain configurations, including in a chec
 
 ### Labels and Annotations
 
-* `slack_link_command_url`: Toggles linking to a URL found in the check output.
+* `slack_link_command_url`: Toggles linking to a URL found in the check command.
 
 Slack channels can be configured using a label or annotation.  In order of precedence:
 

@@ -3,6 +3,9 @@ api_version: core/v2
 metadata:
   name: slack
 spec:
+  runtime_assets:
+    - joshbeard/sensu-slack-compact-alert
+    - jspaleta/sensu-python-runtime
   command: slack.py
   env_vars:
     - SLACK_WEBHOOK_URL=https://hooks.slack.com/services/TXXXXXXXXX6/BXXXXXXXE/PXXXXXXXXXXXXXXXXXXXXXZH
@@ -12,7 +15,4 @@ spec:
     - not_silenced
     - not_flapping
     - fatigue_check
-  runtime_assets:
-    - joshbeard/sensu-slack-compact-alert
-    - jspaleta/sensu-python-runtime
   type: pipe
