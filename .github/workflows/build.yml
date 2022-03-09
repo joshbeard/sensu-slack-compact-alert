@@ -48,5 +48,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./sensu-slack-alert.tar.gz
-          asset_name: sensu-slack-compact-alert_${{ github.ref_name }}_linux_amd64.tar.gz
+          asset_name: sensu-slack-compact-alert-${{ github.ref_name }}-linux-amd64.tar.gz
           asset_content_type: application/gzip
