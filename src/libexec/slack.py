@@ -7,9 +7,11 @@ Configuration:
   Environment variables (e.g. in a check config):
     SLACK_WEBHOOK_URL   A legacy Slack webhook URL
     SLACK_USERNAME      The username to send the message as
-    SLACK_CHANNEL       The Slack channel to send to or a fallback channel. Labels and annotations take precedence.
+    SLACK_CHANNEL       The Slack channel to send to or a fallback channel.
+                        Labels and annotations take precedence.
     ICON_URL            A URL to an icon image to use for the Slack user
-    SENSU_BASE_URL      The base URL to the Sensu dashboard to link to. E.g. https://sensu.foo.org/
+    SENSU_BASE_URL      The base URL to the Sensu dashboard to link to. E.g.
+                        https://sensu.foo.org/
 
   Sensu Entity labels or annotations:
     slack_link_command_url: Toggles linking to a URL found in the check output.
@@ -61,7 +63,8 @@ def pretty_date(time=False, since=now, relative=True):
     Get a datetime object or a int() Epoch timestamp and return a
     pretty string like 'an hour ago', 'Yesterday', '3 months ago',
     'just now', etc
-    Adapted from https://stackoverflow.com/questions/1551382/user-friendly-time-format-in-python/1551394#1551394
+    Adapted from
+    https://stackoverflow.com/questions/1551382/user-friendly-time-format-in-python/1551394#1551394
 
     :param time: the timestamp to parse
     :param since: The current time as a datetime object
