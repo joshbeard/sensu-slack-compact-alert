@@ -203,17 +203,16 @@ def slack_channel(metadata):
         annotations = metadata['annotations']
         if 'slack_channel' in annotations:
             return annotations['slack_channel']
-        elif 'slack-channel' in annotations:
+        if 'slack-channel' in annotations:
             return annotations['slack-channel']
 
     if 'labels' in metadata:
         labels = metadata['labels']
         if 'slack_channel' in labels:
             return labels['slack_channel']
-        elif 'slack-channel' in labels:
+        if 'slack-channel' in labels:
             return labels['slack-channel']
-        else:
-            return os.environ.get('SLACK_CHANNEL', 'alerts')
+        return os.environ.get('SLACK_CHANNEL', 'alerts')
 
 def main():
     """Load the Sensu event data (stdin)"""
