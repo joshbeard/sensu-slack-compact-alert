@@ -245,25 +245,32 @@ def main():
     # label or annotation called 'slack_link_command_url' to 'True' (bool)
     s = False
     link_text = "(view site)"
-    if 'labels' in obj['check']['metadata']:
-        if 'slack_link_command_url' in obj['check']['metadata']['labels']:
-            if obj['check']['metadata']['labels']['slack_link_command_url'].lower() == "true":
-                s = True
-                if 'slack_link_command_text' in obj['check']['metadata']['labels']:
-                    link_text = obj['check']['metadata']['labels']['slack_link_command_text']
-    if 'annotations' in obj['check']['metadata']:
-        if 'slack_link_command_url' in obj['check']['metadata']['annotations']:
-            if obj['check']['metadata']['annotations']['slack_link_command_url'].lower() == "true":
-                s = True
-                if 'slack_link_command_text' in obj['check']['metadata']['annotations']:
-                    link_text = obj['check']['metadata']['annotations']['slack_link_command_text']
+    if (
+        'labels' in obj['check']['metadata']
+        and 'slack_link_command_url' in obj['check']['metadata']['labels']
+        and obj['check']['metadata']['labels']['slack_link_command_url'].lower() == "true"
+    ):
+        s = True
+        if 'slack_link_command_text' in obj['check']['metadata']['labels']:
+            link_text = obj['check']['metadata']['labels']['slack_link_command_text']
+    if (
+        'annotations' in obj['check']['metadata']
+        and 'slack_link_command_url' in obj['check']['metadata']['annotations']
+        and obj['check']['metadata']['annotations']['slack_link_command_url'].lower() == "true"
+    ):
+        s = True
+        if 'slack_link_command_text' in obj['check']['metadata']['annotations']:
+            link_text = obj['check']['metadata']['annotations']['slack_link_command_text']
 
-    if s:
-        if 'https://' in obj['check']['command'] or 'http://' in obj['check']['command']:
-            # Match the first URL in the check command
-            check_url = re.findall(r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+", obj['check']['command'], re.I)[0]
-            # Creates a string like <https://foo/bar|(visit site)>
-            message += " <" + check_url + "|" + link_text + ">"
+    if (
+        s
+        and 'https://' in obj['check']['command']
+        or 'http://' in obj['check']['command']
+    ):
+        # Match the first URL in the check command
+        check_url = re.findall(r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+", obj['check']['command'], re.I)[0]
+        # Creates a string like <https://foo/bar|(visit site)>
+        message += " <" + check_url + "|" + link_text + ">"
 
     message += ": " + output.strip()
 
