@@ -182,7 +182,7 @@ def parse_history(history):
         if i == 0 and x['status'] == 0:
             continue
 
-        if x['status'] is not 0:
+        if x['status'] != 0:
             bad_checks.append(x)
         else:
             break
@@ -225,13 +225,13 @@ def alert_duration(history, status):
     """
     for i, hist in enumerate(history):
         if i == 0:
-            if int(hist['status']) is 0:
+            if int(hist['status']) == 0:
                 continue
         bad_history = parse_history(history)
         if len(bad_history) > 1:
             bad_first = datetime.fromtimestamp(bad_history[-1]['executed'])
             bad_last = datetime.fromtimestamp(bad_history[0]['executed'])
-            duration = str(pretty_date(bad_first, bad_last, False))
+            #duration = str(pretty_date(bad_first, bad_last, False))
             #if status is 0:
             #    return "Alerted for " + duration
             #else:
@@ -318,3 +318,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
