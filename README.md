@@ -3,6 +3,7 @@
 [![Package Sensu Asset](https://github.com/joshbeard/sensu-slack-compact-alert/actions/workflows/build.yml/badge.svg)](https://github.com/joshbeard/sensu-slack-compact-alert/actions/workflows/build.yml)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/d9a7e0288838460096f3f9794dc5a06b)](https://www.codacy.com/gh/joshbeard/sensu-slack-compact-alert/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=joshbeard/sensu-slack-compact-alert&amp;utm_campaign=Badge_Grade)
 [![CodeFactor](https://www.codefactor.io/repository/github/joshbeard/sensu-slack-compact-alert/badge)](https://www.codefactor.io/repository/github/joshbeard/sensu-slack-compact-alert)
+[![DeepSource](https://deepsource.io/gh/joshbeard/sensu-slack-compact-alert.svg/?label=active+issues&token=6AD0pzfy46588O144L_mFJaP)](https://deepsource.io/gh/joshbeard/sensu-slack-compact-alert/?ref=repository-badge)
 
 This is a [Sensu handler](https://docs.sensu.io/sensu-go/latest/observability-pipeline/observe-process/handlers/) for sending messages to Slack.
 
