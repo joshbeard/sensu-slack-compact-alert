@@ -68,7 +68,7 @@ def pretty_date(time=False, since=now, relative=True):
     :param relative: Boolean toggling to return the time relative. E.g. "x ago"
     :return: returns a string indicating how long ago a specific time was
     """
-    if type(time) is int:
+    if isinstance(time, int):
         diff = since - datetime.fromtimestamp(time)
     elif isinstance(time, datetime):
         diff = since - time
@@ -152,7 +152,7 @@ def pretty_date(time=False, since=now, relative=True):
         return the_time
     if day_diff < 365:
         the_time = str(day_diff // 30)
-        the_time + " month"
+        the_time += " month"
         if (day_diff // 30) > 1:
             the_time += "s"
         if relative:
@@ -223,20 +223,20 @@ def alert_duration(history, status):
     :param status: The Sensu check status (as int) from event metadata
     :return: returns a string with how long a check has alerted
     """
-    for i, hist in enumerate(history):
-        if i == 0:
-            if int(hist['status']) == 0:
-                continue
-        bad_history = parse_history(history)
-        if len(bad_history) > 1:
-            bad_first = datetime.fromtimestamp(bad_history[-1]['executed'])
-            bad_last = datetime.fromtimestamp(bad_history[0]['executed'])
-            #duration = str(pretty_date(bad_first, bad_last, False))
-            #if status is 0:
-            #    return "Alerted for " + duration
-            #else:
-            #    return "Alerting for " + duration
-    # Disabled for now
+    #for i, hist in enumerate(history):
+    #    if i == 0:
+    #        if int(hist['status']) == 0:
+    #            continue
+    #    bad_history = parse_history(history)
+    #    if len(bad_history) > 1:
+    #        bad_first = datetime.fromtimestamp(bad_history[-1]['executed'])
+    #        bad_last = datetime.fromtimestamp(bad_history[0]['executed'])
+    #        #duration = str(pretty_date(bad_first, bad_last, False))
+    #        #if status is 0:
+    #        #    return "Alerted for " + duration
+    #        #else:
+    #        #    return "Alerting for " + duration
+    ## Disabled for now
     return ""
 
 def main():
@@ -248,10 +248,10 @@ def main():
         data += "".join(line.strip())
     obj = json.loads(data)
 
-    channel     = slack_channel(obj['entity']['metadata'])
-    namespace   = obj['entity']['metadata']['namespace']
+    channel = slack_channel(obj['entity']['metadata'])
+    namespace = obj['entity']['metadata']['namespace']
     entity_name = obj['entity']['metadata']['name']
-    check_name  = obj['check']['metadata']['name']
+    check_name = obj['check']['metadata']['name']
 
     output = obj['check']['output']
     output.replace('\n', ' ').replace('\r', '')

@@ -1,0 +1,10 @@
+---
+engines:
+  pytest:
+    exclude_paths:
+      # This is actually a shell script
+      - "src/bin/slack.py"
+  prospector:
+    exclude_paths:
+      # This is actually a shell script
+      - "src/bin/slack.py"
