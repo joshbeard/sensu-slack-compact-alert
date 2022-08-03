@@ -45,6 +45,7 @@ config = {
     "icon_url": os.environ.get('ICON_URL', 'https://docs.sensu.io/images/sensu-logo-icon-dark@2x.png')
 }
 
+
 def emoji(status):
     """
     List of emojis to map to an event status, using the Sensu/Nagios
@@ -57,6 +58,7 @@ def emoji(status):
         ':large_purple_circle:'
     ]
     return emojis[status]
+
 
 def pretty_date(time=False, since=now, relative=True):
     """
@@ -170,6 +172,7 @@ def pretty_date(time=False, since=now, relative=True):
             the_time += " ago"
         return the_time
 
+
 def parse_history(history):
     """
     Parse event history to determine the delta between the previous (bad) status
@@ -190,6 +193,7 @@ def parse_history(history):
         else:
             break
     return bad_checks
+
 
 def slack_channel(metadata):
     """
@@ -213,7 +217,9 @@ def slack_channel(metadata):
         elif 'slack-channel' in labels:
             return labels['slack-channel']
         else:
-            return os.environ.get('SLACK_CHANNEL', 'alerts')
+            env_label = str(os.environ.get('SLACK_CHANNEL', 'alerts'))
+            return env_label
+
 
 def main():
     """Load the Sensu event data (stdin)"""
@@ -261,7 +267,9 @@ def main():
     if s:
         if 'https://' in obj['check']['command'] or 'http://' in obj['check']['command']:
             # Match the first URL in the check command
-            check_url = re.findall(r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+", obj['check']['command'], re.I)[0]
+            check_url = re.findall(
+                r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+",
+                obj['check']['command'], re.I)[0]
             # Creates a string like <https://foo/bar|(visit site)>
             message += " <" + check_url + "|" + link_text + ">"
 
@@ -278,6 +286,6 @@ def main():
         text=message,
     )
 
+
 if __name__ == '__main__':
     main()
-
