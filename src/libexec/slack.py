@@ -152,7 +152,7 @@ def pretty_date(time=False, since=now, relative=True):
         return the_time
     if day_diff < 365:
         the_time = str(day_diff // 30)
-        the_time + " month"
+        the_time += " month"
         if (day_diff // 30) > 1:
             the_time += "s"
         if relative:
