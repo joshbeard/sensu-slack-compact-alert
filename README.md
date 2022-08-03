@@ -51,15 +51,21 @@ bot or join channels.
 Environment variables can be set for certain configurations, including in a check configuration.
 
 * `SLACK_WEBHOOK_URL`: A legacy Slack webhook URL
+
 * `SLACK_USERNAME`: The username to send the message as
+
 * `SLACK_CHANNEL`:  The Slack channel to send to or a fallback channel.
   [Labels and annotations](#labels-and-annotations) take precedence.
+
 * `ICON_URL`: A URL to an icon image to use for the Slack user
-* `SENSU_BASE_URL`:  The base URL to the Sensu dashboard to link to. E.g. https://sensu.foo.org
+
+* `SENSU_BASE_URL`:  The base URL to the Sensu dashboard to link to. E.g.
+  https://sensu.foo.org
 
 ### Labels and Annotations
 
 * `slack_link_command_url`: Toggles linking to a URL found in the check command.
+
 * `slack_link_command_text`: The link title when using `slack_link_command_url`. By default,
   this is "(view site)"
 
