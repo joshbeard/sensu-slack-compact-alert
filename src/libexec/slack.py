@@ -248,10 +248,10 @@ def main():
         data += "".join(line.strip())
     obj = json.loads(data)
 
-    channel     = slack_channel(obj['entity']['metadata'])
-    namespace   = obj['entity']['metadata']['namespace']
+    channel = slack_channel(obj['entity']['metadata'])
+    namespace = obj['entity']['metadata']['namespace']
     entity_name = obj['entity']['metadata']['name']
-    check_name  = obj['check']['metadata']['name']
+    check_name = obj['check']['metadata']['name']
 
     output = obj['check']['output']
     output.replace('\n', ' ').replace('\r', '')
