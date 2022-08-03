@@ -218,6 +218,7 @@ def slack_channel(metadata):
             return labels['slack-channel']
         return os.environ.get('SLACK_CHANNEL', 'alerts')
 
+
 def main():
     """Load the Sensu event data (stdin)"""
     data = ""
