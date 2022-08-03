@@ -1,5 +1,8 @@
 # Compact Sensu Slack Handler
 
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/d9a7e0288838460096f3f9794dc5a06b)](https://www.codacy.com/gh/joshbeard/sensu-slack-compact-alert/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=joshbeard/sensu-slack-compact-alert&amp;utm_campaign=Badge_Grade)
+[![CodeFactor](https://www.codefactor.io/repository/github/joshbeard/sensu-slack-compact-alert/badge)](https://www.codefactor.io/repository/github/joshbeard/sensu-slack-compact-alert)
+
 This is a [Sensu handler](https://docs.sensu.io/sensu-go/latest/observability-pipeline/observe-process/handlers/) for sending messages to Slack.
 
 It's written in Python and uses the [jspaleta/sensu-python-runtime](https://bonsai.sensu.io/assets/jspaleta/sensu-python-runtime) runtime in Sensu Go.
