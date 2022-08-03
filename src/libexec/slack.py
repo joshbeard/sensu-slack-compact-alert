@@ -240,9 +240,7 @@ def alert_duration(history, status):
     return ""
 
 def main():
-    """
-    Load the Sensu event data (stdin)
-    """
+    """Load the Sensu event data (stdin)"""
     data = ""
     for line in sys.stdin.readlines():
         data += "".join(line.strip())
