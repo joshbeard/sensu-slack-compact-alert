@@ -303,7 +303,7 @@ def main():
     #if 'history' in obj['check']:
     #    message += "; " + alert_duration(obj['check']['history'], obj['check']['status'])
 
-    logging.debug("raw event data: %s " % str(obj))
+    logging.debug("raw event data: %s ", str(obj))
 
     """
     Post to Slack
