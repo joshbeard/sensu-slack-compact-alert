@@ -43,11 +43,11 @@ config = {
     "icon_url": os.environ.get('ICON_URL', 'https://docs.sensu.io/images/sensu-logo-icon-dark@2x.png')
 }
 
-"""
-List of emojis to map to an event status, using the Sensu/Nagios
-exit code (0=OK, 1=Warning, 2=Critical, 3=Unknown)
-"""
 def emoji(status):
+    """
+    List of emojis to map to an event status, using the Sensu/Nagios
+    exit code (0=OK, 1=Warning, 2=Critical, 3=Unknown)
+    """
     emojis = [
         ':large_green_circle:',
         ':large_yellow_circle:',
@@ -212,33 +212,6 @@ def slack_channel(metadata):
         else:
             return os.environ.get('SLACK_CHANNEL', 'alerts')
 
-def alert_duration(history, status):
-    """
-    Parse the history to display how long a check has been in its status or previous status
-
-    TODO: This is buggy and pretty limited in usefulness, since the Sensu alert
-    history is limited.
-
-    :param history: The Sensu check's history from the event data
-    :param status: The Sensu check status (as int) from event metadata
-    :return: returns a string with how long a check has alerted
-    """
-    #for i, hist in enumerate(history):
-    #    if i == 0:
-    #        if int(hist['status']) == 0:
-    #            continue
-    #    bad_history = parse_history(history)
-    #    if len(bad_history) > 1:
-    #        bad_first = datetime.fromtimestamp(bad_history[-1]['executed'])
-    #        bad_last = datetime.fromtimestamp(bad_history[0]['executed'])
-    #        #duration = str(pretty_date(bad_first, bad_last, False))
-    #        #if status is 0:
-    #        #    return "Alerted for " + duration
-    #        #else:
-    #        #    return "Alerting for " + duration
-    ## Disabled for now
-    return ""
-
 def main():
     """Load the Sensu event data (stdin)"""
     data = ""
@@ -256,23 +229,17 @@ def main():
 
     message = emoji(obj['check']['status'])
 
-    """
-    Generate markdown for the entity name in the Slack message
-    This links it to the Sensu dashboard
-    """
+    # Generate markdown for the entity name in the Slack message
+    # This links it to the Sensu dashboard
     message += " " + f"<{config['sensu_url']}/c/~/n/{namespace}/entities/{entity_name}/events|{entity_name}>"
 
-    """
-    Generate markdown for the check name in the Slack message
-    This links it to the Sensu dashboard
-    """
+    # Generate markdown for the check name in the Slack message
+    # This links it to the Sensu dashboard
     message += " - " + f"<{config['sensu_url']}/c/~/n/{namespace}/events/{entity_name}/{check_name}|{check_name}>"
 
-    """
-    If a URL is in the check command, add a link to it in the Slack message.
-    This is disabled by default and can be enabled per-check by setting a
-    label or annotation called 'slack_link_command_url' to 'True' (bool)
-    """
+    # If a URL is in the check command, add a link to it in the Slack message.
+    # This is disabled by default and can be enabled per-check by setting a
+    # label or annotation called 'slack_link_command_url' to 'True' (bool)
     s = False
     link_text = "(view site)"
     if 'labels' in obj['check']['metadata']:
@@ -297,15 +264,9 @@ def main():
 
     message += ": " + output.strip()
 
-    # Disabled for now
-    #if 'history' in obj['check']:
-    #    message += "; " + alert_duration(obj['check']['history'], obj['check']['status'])
-
     logging.debug("raw event data: %s ", str(obj))
 
-    """
-    Post to Slack
-    """
+    # Post to Slack
     slack = Slack(url=config['webhook_url'])
     slack.post(
         username=config['username'],
