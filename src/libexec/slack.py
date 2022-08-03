@@ -186,7 +186,7 @@ def parse_history(history):
             bad_checks.append(x)
         else:
             break
-    return(bad_checks)
+    return bad_checks
 
 def slack_channel(metadata):
     """
